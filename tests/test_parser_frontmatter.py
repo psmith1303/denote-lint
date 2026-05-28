@@ -53,6 +53,44 @@ class TestOrg:
         assert fm.title is None
         assert fm.identifier == "20240115T093000"
 
+    def test_properties_drawer_before_keywords(self) -> None:
+        """File-level :PROPERTIES: drawer preceding #+keywords is recognised."""
+        text = dedent(
+            """\
+            :PROPERTIES:
+            :ID:       20240115T093000
+            :CREDITS:  3
+            :END:
+            #+title:      Hello
+            #+identifier: 20240115T093000
+            #+filetags:   :tag1:tag2:
+
+            Body.
+            """
+        )
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title == "Hello"
+        assert fm.identifier == "20240115T093000"
+        assert fm.keywords == ("tag1", "tag2")
+        assert body.startswith("Body.")
+
+    def test_properties_drawer_only_no_keywords(self) -> None:
+        """A drawer with no #+keywords yields empty front matter, not a crash."""
+        text = dedent(
+            """\
+            :PROPERTIES:
+            :ID:       20240115T093000
+            :END:
+
+            Body.
+            """
+        )
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title is None
+        assert fm.identifier is None
+
 
 class TestMarkdownYaml:
     def test_full_block(self) -> None:
