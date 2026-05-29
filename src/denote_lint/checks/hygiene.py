@@ -27,7 +27,7 @@ def check_w008(note: Note, ctx: Context) -> Iterable[Issue]:
     ext = note.filename.extension.lower()
     if ext not in ctx.image_extensions:
         return
-    if ctx.image_tag in note.filename.keywords:
+    if ctx.image_tag == '' or ctx.image_tag in note.filename.keywords:
         return
     if note.front_matter is not None and ctx.image_tag in note.front_matter.keywords:
         return
