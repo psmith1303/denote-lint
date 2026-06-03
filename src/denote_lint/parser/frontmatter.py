@@ -67,6 +67,8 @@ def _parse_org(text: str) -> tuple[FrontMatter, str]:
         if line.startswith("#+"):
             fm_lines.append(line)
             continue
+        if line.startswith("#"):
+            continue
         if line.strip() == "" and fm_lines:
             body_start = i + 1
             break

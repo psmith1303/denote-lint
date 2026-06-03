@@ -57,6 +57,7 @@ class TestOrg:
         """File-level :PROPERTIES: drawer preceding #+keywords is recognised."""
         text = dedent(
             """\
+            # comment -*- indent-tabs-mode:nil -*-
             :PROPERTIES:
             :ID:       20240115T093000
             :CREDITS:  3
