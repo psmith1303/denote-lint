@@ -55,9 +55,19 @@ def _parse_org(text: str) -> tuple[FrontMatter, str]:
     lines = text.split("\n")
     fm_lines: list[str] = []
     body_start = len(lines)
+    in_property_drawer = False
     for i, line in enumerate(lines):
+        if in_property_drawer:
+            if line.strip() == ":END:":
+                in_property_drawer = False
+            continue
+        if line.strip() == ":PROPERTIES:":
+            in_property_drawer = True
+            continue
         if line.startswith("#+"):
             fm_lines.append(line)
+            continue
+        if line.startswith("#"):
             continue
         if line.strip() == "" and fm_lines:
             body_start = i + 1
