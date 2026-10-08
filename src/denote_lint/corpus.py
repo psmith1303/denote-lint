@@ -38,6 +38,7 @@ class CorpusOptions:
         {"png", "jpg", "jpeg", "gif", "svg", "webp"}
     )
     image_tag: str = "image"
+    attachment_extensions: frozenset[str] = frozenset({"pdf"})
     exclude: tuple[str, ...] = ()
     follow_symlinks: bool = False
     allow_attachment_aliases: bool = False
@@ -45,7 +46,11 @@ class CorpusOptions:
 
     def __post_init__(self) -> None:
         if not self.candidate_extensions:
-            self.candidate_extensions = self.note_extensions | self.image_extensions
+            self.candidate_extensions = (
+                self.note_extensions
+                | self.image_extensions
+                | self.attachment_extensions
+            )
 
 
 def discover_files(
@@ -54,7 +59,7 @@ def discover_files(
     """Yield ``(path, indexed_only)`` for files reachable from ``paths``.
 
     A file is considered if its extension is in ``candidate_extensions``
-    (notes + images by default). Files passed explicitly are yielded
+    (notes + images + other attachments by default). Files passed explicitly are yielded
     regardless of extension and are never indexed-only; directories are
     walked. A directory containing a ``.ignore`` file flips
     ``indexed_only`` to True for its whole subtree.

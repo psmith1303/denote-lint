@@ -82,6 +82,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Required keyword for image files (default: image).",
     )
     p.add_argument(
+        "--attachment-extensions",
+        default="pdf",
+        help="Other extensions indexed as attachments so links to them "
+        "resolve; not subject to W008 (default: pdf).",
+    )
+    p.add_argument(
         "--exclude",
         action="append",
         default=[],
@@ -132,6 +138,7 @@ def config_from_args(args: argparse.Namespace) -> Config:
         note_extensions=_split_exts(args.extensions),
         image_extensions=_split_exts(args.image_extensions),
         image_tag=args.image_tag,
+        attachment_extensions=_split_exts(args.attachment_extensions),
         exclude=tuple(args.exclude),
         follow_symlinks=args.follow_symlinks,
         strict=args.strict,
@@ -152,6 +159,7 @@ def run(config: Config) -> int:
         note_extensions=config.note_extensions,
         image_extensions=config.image_extensions,
         image_tag=config.image_tag,
+        attachment_extensions=config.attachment_extensions,
         exclude=config.exclude,
         follow_symlinks=config.follow_symlinks,
         allow_attachment_aliases=config.allow_attachment_aliases,

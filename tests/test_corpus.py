@@ -93,6 +93,17 @@ class TestDiscoverFiles:
         found = list(discover_files([tmp_path], opts))
         assert any(p.name == "20240115T093000--photo.jpg" for p, _ in found)
 
+    def test_includes_attachment_extensions(self, tmp_path: Path) -> None:
+        _write(tmp_path / "20240115T093000--paper.pdf", b"%PDF-1.4")
+        _write(tmp_path / "20240115T093000--book.epub", b"PK")
+        found = {p.name for p, _ in discover_files([tmp_path], CorpusOptions())}
+        assert "20240115T093000--paper.pdf" in found
+        assert "20240115T093000--book.epub" not in found
+        opts = CorpusOptions(attachment_extensions=frozenset({"epub"}))
+        found = {p.name for p, _ in discover_files([tmp_path], opts)}
+        assert "20240115T093000--book.epub" in found
+        assert "20240115T093000--paper.pdf" not in found
+
     def test_explicit_file_is_yielded(self, tmp_path: Path) -> None:
         f = tmp_path / "explicit.bak"
         _write(f, "x")

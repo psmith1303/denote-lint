@@ -95,6 +95,24 @@ spanning the boundary is still reported. What is suppressed is
 skip them, and corpus checks (E001, I001) drop any issue whose anchor
 lands in an ignored subtree.
 
+** Attachments
+
+Non-note files with a Denote filename are indexed as attachments, so a
+denote link to them resolves (no spurious E004). Two kinds are
+recognised:
+
+- images (=--image-extensions=, default =png,jpg,jpeg,gif,svg,webp=),
+  which W008 requires to carry the =--image-tag= keyword (default
+  =image=);
+- other attachments (=--attachment-extensions=, default =pdf=), which
+  have no keyword requirement.
+
+For example, to also index EPUBs and Word documents:
+
+#+begin_src sh
+  denote-lint --attachment-extensions pdf,epub,docx ~/notes
+#+end_src
+
 * Checks
 
 Severity is metadata and is used to derive the default report set

@@ -27,6 +27,7 @@ class Config:
         {"png", "jpg", "jpeg", "gif", "svg", "webp"}
     )
     image_tag: str = "image"
+    attachment_extensions: frozenset[str] = frozenset({"pdf"})
     exclude: tuple[str, ...] = ()
     follow_symlinks: bool = False
     strict: bool = False

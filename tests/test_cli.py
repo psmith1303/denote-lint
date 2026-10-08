@@ -50,6 +50,15 @@ class TestArgParser:
         cfg = config_from_args(args)
         assert cfg.note_extensions == frozenset({"org", "md"})
 
+    def test_attachment_extensions(self) -> None:
+        parser = build_parser()
+        assert config_from_args(parser.parse_args(["x"])).attachment_extensions == {
+            "pdf"
+        }
+        args = parser.parse_args(["x", "--attachment-extensions", "pdf,.epub"])
+        cfg = config_from_args(args)
+        assert cfg.attachment_extensions == frozenset({"pdf", "epub"})
+
 
 class TestRun:
     def test_clean_corpus_exits_zero(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -76,6 +85,22 @@ class TestRun:
         assert rc == 1
         out = capsys.readouterr()
         assert "E001" in out.out
+
+    def test_link_to_pdf_attachment_resolves(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        _write(
+            tmp_path / "20240115T093000--note__t.org",
+            "#+title: Note\n#+identifier: 20240115T093000\n#+filetags: :t:\n\n"
+            "See [[denote:20240116T100000][the paper]].\n",
+        )
+        _write(tmp_path / "20240116T100000--paper.pdf", "%PDF-1.4")
+        assert run(Config(paths=(tmp_path,))) == 0
+        assert "W008" not in capsys.readouterr().out
+        # Without PDFs indexed, the link is broken.
+        cfg = Config(paths=(tmp_path,), attachment_extensions=frozenset())
+        assert run(cfg) == 1
+        assert "E004" in capsys.readouterr().out
 
     def test_strict_promotes_warning(self, tmp_path: Path) -> None:
         # Unsorted keywords -> W001 only. Without --strict, exit 0.
