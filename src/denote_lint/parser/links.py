@@ -67,8 +67,13 @@ _ORG_BLOCK_END_RE = re.compile(
 _MD_FENCE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
 
 
-def extract_links(extension: str, body: str) -> tuple[Link, ...]:
+def extract_links(
+    extension: str, body: str, *, first_line: int = 1
+) -> tuple[Link, ...]:
     """Return all ``denote:`` links found in ``body``.
+
+    ``first_line`` is the file line number of the body's first line, so
+    reported positions are file-relative rather than body-relative.
 
     Code regions are masked out first so that links inside source or
     example blocks do not generate false E004 / I005.
@@ -88,7 +93,7 @@ def extract_links(extension: str, body: str) -> tuple[Link, ...]:
         desc = m.group("desc")
         target_id, _, _ = target.partition("::")
         target_id = target_id.strip()
-        line, col = _line_col(masked, m.start())
+        line, col = _line_col(masked, m.start(), first_line)
         links.append(
             Link(
                 target_id=target_id,
@@ -100,7 +105,9 @@ def extract_links(extension: str, body: str) -> tuple[Link, ...]:
     return tuple(links)
 
 
-def extract_file_links(extension: str, body: str) -> tuple[FileLink, ...]:
+def extract_file_links(
+    extension: str, body: str, *, first_line: int = 1
+) -> tuple[FileLink, ...]:
     """Return file-shaped links found in ``body``.
 
     Org: ``file:`` prefix or bare paths starting with ``/``, ``./``,
@@ -111,24 +118,25 @@ def extract_file_links(extension: str, body: str) -> tuple[FileLink, ...]:
     scheme. Optional CommonMark titles (``"Title"`` / ``'Title'``) and
     URL fragments / queries are stripped before resolution.
 
-    Code regions are masked out first.
+    Code regions are masked out first. ``first_line`` is as for
+    :func:`extract_links`.
     """
     ext = extension.lower()
     if ext not in ("org", "md"):
         return ()
     masked = _mask_code_blocks(ext, body)
     if ext == "org":
-        return _extract_org_file_links(masked)
-    return _extract_md_file_links(masked)
+        return _extract_org_file_links(masked, first_line)
+    return _extract_md_file_links(masked, first_line)
 
 
-def _extract_org_file_links(body: str) -> tuple[FileLink, ...]:
+def _extract_org_file_links(body: str, first_line: int) -> tuple[FileLink, ...]:
     links: list[FileLink] = []
     for m in _ORG_BRACKET_RE.finditer(body):
         path = _normalize_org_file_target(m.group("target"))
         if path is None:
             continue
-        line, col = _line_col(body, m.start())
+        line, col = _line_col(body, m.start(), first_line)
         desc = m.group("desc")
         links.append(
             FileLink(
@@ -141,13 +149,13 @@ def _extract_org_file_links(body: str) -> tuple[FileLink, ...]:
     return tuple(links)
 
 
-def _extract_md_file_links(body: str) -> tuple[FileLink, ...]:
+def _extract_md_file_links(body: str, first_line: int) -> tuple[FileLink, ...]:
     links: list[FileLink] = []
     for m in _MD_INLINE_RE.finditer(body):
         path = _normalize_md_file_target(m.group("target"))
         if path is None:
             continue
-        line, col = _line_col(body, m.start())
+        line, col = _line_col(body, m.start(), first_line)
         desc = m.group("desc")
         links.append(
             FileLink(
@@ -284,8 +292,8 @@ def _mask_md_fences(body: str) -> str:
     return "".join(chars)
 
 
-def _line_col(text: str, offset: int) -> tuple[int, int]:
+def _line_col(text: str, offset: int, first_line: int) -> tuple[int, int]:
     line_start = text.rfind("\n", 0, offset) + 1
-    line = text.count("\n", 0, offset) + 1
+    line = text.count("\n", 0, offset) + first_line
     col = offset - line_start + 1
     return line, col

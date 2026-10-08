@@ -183,7 +183,7 @@ def load_note(
     is_attachment = ext not in opts.note_extensions
 
     text, read_error = read_file(path)
-    if read_error is not None:
+    if text is None:
         return Note(
             path=path,
             filename=pf,
@@ -201,8 +201,10 @@ def load_note(
     file_links: tuple[FileLink, ...] = ()
     if not is_attachment:
         fm, body = parse_frontmatter(ext, text)
-        links = extract_links(ext, body)
-        file_links = extract_file_links(ext, body)
+        # body is a suffix of text, so its first line follows the prefix's.
+        first_line = text.count("\n", 0, len(text) - len(body)) + 1
+        links = extract_links(ext, body, first_line=first_line)
+        file_links = extract_file_links(ext, body, first_line=first_line)
 
     return Note(
         path=path,

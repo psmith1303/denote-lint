@@ -36,7 +36,9 @@ def parse_frontmatter(extension: str, text: str) -> tuple[FrontMatter | None, st
     """Parse the front matter for the given extension.
 
     Returns ``(FrontMatter, body)`` for note types and ``(None, body)``
-    for attachments (any extension other than org/md/txt).
+    for attachments (any extension other than org/md/txt). ``body`` is
+    always a suffix of ``text`` (whole lines); the corpus loader relies on
+    that to report link positions as file line numbers.
 
     A markdown file with no recognised opening fence yields an empty
     :class:`FrontMatter` (no parse_errors); the caller's checks decide
