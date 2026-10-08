@@ -25,6 +25,11 @@ _ORG_DATE_RE = re.compile(
     r"(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?"
     r"\s*\]?$"
 )
+# Org syntax: ``#+KEY: value`` keyword, ``# text`` comment, ``:KEY: value``
+# node property inside a ``:PROPERTIES:`` ... ``:END:`` drawer.
+_ORG_KEYWORD_RE = re.compile(r"#\+[^\s:]+:")
+_ORG_COMMENT_RE = re.compile(r"[ \t]*#(?: |$)")
+_ORG_PROPERTY_RE = re.compile(r"[ \t]*:[^\s:]+:(?:[ \t]|$)")
 
 
 def parse_frontmatter(extension: str, text: str) -> tuple[FrontMatter | None, str]:
@@ -55,28 +60,28 @@ def _parse_org(text: str) -> tuple[FrontMatter, str]:
     lines = text.split("\n")
     fm_lines: list[str] = []
     body_start = len(lines)
-    skip_to = -1
-    for i, line in enumerate(lines):
-        if i <= skip_to:
-            continue
-        stripped = line.strip()
-        if stripped.upper() == ":PROPERTIES:":
-            end = _property_drawer_end(lines, i)
-            if end is not None:
-                skip_to = end
-                continue
-        if line.startswith("#+"):
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if _ORG_KEYWORD_RE.match(line):
             fm_lines.append(line)
-            continue
-        if line.startswith("#"):
-            continue
-        if not stripped:
+        elif _ORG_COMMENT_RE.match(line):
+            pass
+        elif not line.strip():
             if fm_lines:
                 body_start = i + 1
                 break
-            continue
-        body_start = i
-        break
+        elif (
+            not fm_lines
+            and line.strip().upper() == ":PROPERTIES:"
+            and (end := _property_drawer_end(lines, i)) is not None
+        ):
+            # A file-level drawer, which Org only allows before other content.
+            i = end
+        else:
+            body_start = i
+            break
+        i += 1
 
     title: str | None = None
     identifier: str | None = None
@@ -113,10 +118,9 @@ def _property_drawer_end(lines: list[str], start: int) -> int | None:
     ``:KEY:`` property lines; anything else means there is no drawer here.
     """
     for j in range(start + 1, len(lines)):
-        stripped = lines[j].strip()
-        if stripped.upper() == ":END:":
+        if lines[j].strip().upper() == ":END:":
             return j
-        if not stripped.startswith(":"):
+        if not _ORG_PROPERTY_RE.match(lines[j]):
             return None
     return None
 

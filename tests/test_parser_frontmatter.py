@@ -119,6 +119,57 @@ class TestOrg:
         assert body == text
 
 
+    def test_drawer_after_keywords_is_not_skipped(self) -> None:
+        """Only a drawer before the keywords is file-level front matter."""
+        text = "#+title: Hello\n:PROPERTIES:\n:ID: x\n:END:\n#+identifier: 1\n"
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title == "Hello"
+        assert fm.identifier is None
+        assert body.startswith(":PROPERTIES:")
+
+    def test_drawer_with_non_property_line_is_not_skipped(self) -> None:
+        """A fixed-width ``: text`` line means this is not a property drawer."""
+        text = ":PROPERTIES:\n: example\n:END:\n#+title: Hello\n"
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title is None
+        assert body == text
+
+    def test_comments_among_keywords_are_skipped(self) -> None:
+        text = dedent(
+            """\
+              # indented comment
+            #+title:      Hello
+            #
+            # another comment
+            #+identifier: 20240115T093000
+
+            Body.
+            """
+        )
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title == "Hello"
+        assert fm.identifier == "20240115T093000"
+        assert body == "Body.\n"
+
+    def test_hash_without_space_is_body_not_comment(self) -> None:
+        """``#idea`` is a paragraph in Org, not a comment."""
+        text = "#idea see [[denote:20240101T000000]]\n"
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert body == text
+
+    def test_src_block_after_comment_starts_body(self) -> None:
+        """``#+begin_src`` is not a keyword, so the body (and masking) starts there."""
+        text = "#+title: Hello\n# note\n#+begin_src elisp\n(foo)\n#+end_src\n"
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title == "Hello"
+        assert body.startswith("#+begin_src")
+
+
 class TestMarkdownYaml:
     def test_full_block(self) -> None:
         text = dedent(
