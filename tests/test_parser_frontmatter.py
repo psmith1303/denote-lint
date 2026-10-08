@@ -91,6 +91,32 @@ class TestOrg:
         assert fm is not None
         assert fm.title is None
         assert fm.identifier is None
+        assert body == "Body.\n"
+
+    def test_properties_drawer_lowercase(self) -> None:
+        """Drawer markers are matched case-insensitively, as in Org."""
+        text = dedent(
+            """\
+            :properties:
+            :ID:       20240115T093000
+            :end:
+            #+title:      Hello
+
+            Body.
+            """
+        )
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title == "Hello"
+        assert body.startswith("Body.")
+
+    def test_unterminated_properties_drawer(self) -> None:
+        """A drawer with no :END: is not skipped; it starts the body."""
+        text = ":PROPERTIES:\n:ID: x\n#+title: Hello\n\nBody.\n"
+        fm, body = parse_frontmatter("org", text)
+        assert fm is not None
+        assert fm.title is None
+        assert body == text
 
 
 class TestMarkdownYaml:

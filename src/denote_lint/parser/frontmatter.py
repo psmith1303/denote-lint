@@ -55,24 +55,25 @@ def _parse_org(text: str) -> tuple[FrontMatter, str]:
     lines = text.split("\n")
     fm_lines: list[str] = []
     body_start = len(lines)
-    in_property_drawer = False
+    skip_to = -1
     for i, line in enumerate(lines):
-        if in_property_drawer:
-            if line.strip() == ":END:":
-                in_property_drawer = False
+        if i <= skip_to:
             continue
-        if line.strip() == ":PROPERTIES:":
-            in_property_drawer = True
-            continue
+        stripped = line.strip()
+        if stripped.upper() == ":PROPERTIES:":
+            end = _property_drawer_end(lines, i)
+            if end is not None:
+                skip_to = end
+                continue
         if line.startswith("#+"):
             fm_lines.append(line)
             continue
         if line.startswith("#"):
             continue
-        if line.strip() == "" and fm_lines:
-            body_start = i + 1
-            break
-        if line.strip() == "":
+        if not stripped:
+            if fm_lines:
+                body_start = i + 1
+                break
             continue
         body_start = i
         break
@@ -103,6 +104,21 @@ def _parse_org(text: str) -> tuple[FrontMatter, str]:
         keywords=keywords,
         raw_lines=tuple(fm_lines),
     ), body
+
+
+def _property_drawer_end(lines: list[str], start: int) -> int | None:
+    """Index of the ``:END:`` closing the drawer opened at ``lines[start]``.
+
+    Like Org, markers are case-insensitive and the drawer may only contain
+    ``:KEY:`` property lines; anything else means there is no drawer here.
+    """
+    for j in range(start + 1, len(lines)):
+        stripped = lines[j].strip()
+        if stripped.upper() == ":END:":
+            return j
+        if not stripped.startswith(":"):
+            return None
+    return None
 
 
 def _parse_org_filetags(value: str) -> tuple[str, ...]:
