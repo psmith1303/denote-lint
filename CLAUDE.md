@@ -71,6 +71,19 @@ ruff check src tests     # lint
 mypy src tests           # type check (strict)
 ```
 
+There is no venv in the repo, and bare `pytest`/`mypy` fail here. Make one
+outside the tree: `python3 -m venv <scratchpad>/venv && <scratchpad>/venv/bin/pip
+install -e '.[dev]'`, then call its `pytest`/`ruff`/`mypy`. pytest is quiet by
+config, so run it without `-q` to see the total. Lint is **not** clean on master
+(2026-10-08: 13 ruff, 6 mypy): record the counts at baseline and judge by delta,
+re-running mypy before handing off from /build.
+
+Deferred on purpose after the Oct 2026 PR triage (start here if asked): `_line_col`
+rescans from the body start per link and `_mask_code_blocks` runs twice per note
+(mask once in `load_note`); `load_note`'s body-start line relies on an unenforced
+whole-line-suffix invariant of `parse_frontmatter`; `_extract_org_file_links` and
+`_extract_md_file_links` are near-copies.
+
 End-to-end regression test in `tests/test_e2e_corpus.py` runs denote-lint against `tests/fixtures/corpus-small/` and asserts the exact issue set (documented in `MANIFEST.org` inside the fixture).
 
 ## Adding a new check
