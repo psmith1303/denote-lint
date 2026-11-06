@@ -2,7 +2,7 @@
 
 ## What this project is
 
-denote-lint is a static analysis tool for Emacs Denote note collections. It walks a directory tree, parses Denote-format filenames and front matter, extracts cross-note links, and emits issues classified as error/warning/info. It runs 30 checks across 5 categories. Pure Python — no Emacs dependency.
+denote-lint is a static analysis tool for Emacs Denote note collections. It walks a directory tree, parses Denote-format filenames and front matter, extracts cross-note links, and emits issues classified as error/warning/info (codes in the table below). Pure Python — no Emacs dependency.
 
 ## Architecture
 
@@ -66,7 +66,7 @@ python -m denote_lint PATH       # direct module invocation
 ## Running tests
 
 ```bash
-pytest                   # 279+ tests
+pytest                   # full suite
 ruff check src tests     # lint
 mypy src tests           # type check (strict)
 ```
