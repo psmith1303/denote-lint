@@ -10,9 +10,8 @@ denote links between files, and emits a list of issues classified as
 
 * Status
 
-Stable. v1.0.0 implements every check listed in
-[[file:denote-lint-spec.org][denote-lint-spec.org]] and is regression-tested against a fixture
-corpus on every commit. Behaviour is fixed for the 1.x line; new
+Stable. Every check in the [[*Checks][Checks]] table below is implemented and
+regression-tested against a fixture corpus on every commit. Behaviour is fixed for the 1.x line; new
 checks will arrive under new codes rather than changing what existing
 codes report.
 
@@ -103,7 +102,7 @@ recognised:
 
 - images (=--image-extensions=, default =png,jpg,jpeg,gif,svg,webp=),
   which W008 requires to carry the =--image-tag= keyword (default
-  =image=);
+  =image=; =--image-tag ''= requires none);
 - other attachments (=--attachment-extensions=, default =pdf=), which
   have no keyword requirement.
 
@@ -203,7 +202,7 @@ A single JSON object on stdout:
 
 #+begin_src js
   {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scanned": 423,
     "issues": [
       {"path": "...", "line": 1, "col": 1,

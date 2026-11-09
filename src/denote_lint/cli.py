@@ -79,7 +79,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--image-tag",
         default="image",
-        help="Required keyword for image files (default: image).",
+        help="Required keyword for image files (default: image; empty: none required).",
     )
     p.add_argument(
         "--attachment-extensions",
