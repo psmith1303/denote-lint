@@ -19,8 +19,8 @@ checks/
   filename.py       W001, W007, E002, E003, E009, E010
   identifier.py     E001 (corpus-level: duplicate IDs)
   frontmatter.py    E005–E008, W002–W004
-  links.py          E004, W005, W006
-  hygiene.py        W008 (image keyword policy), I001–I004 (orphans, stubs, untagged)
+  links.py          E004, W006, I005
+  hygiene.py        W008 (image keyword policy), I001–I004 (duplicate tags, stubs, orphans, untagged)
 reporter.py         Output formatters: compilation-mode, JSON, coloured text
 sluggify.py         Canonical slugification mirroring Denote's own behaviour
 ```
@@ -46,8 +46,8 @@ sluggify.py         Canonical slugification mirroring Denote's own behaviour
 | Range | Category |
 |-------|----------|
 | E001–E010 | Errors: duplicate IDs, malformed identifiers, front-matter mismatches, broken links |
-| W001–W008 | Warnings: filename inconsistencies, front-matter/link mismatches, image keyword policy |
-| I001–I004 | Info: orphans, duplicate tags, stubs, untagged notes |
+| W001–W008 | Warnings: filename inconsistencies, front-matter/link mismatches, image keyword policy (no W005: it became I005) |
+| I001–I005 | Info: orphans, duplicate tags, stubs, untagged notes, link description out of sync with title |
 
 ## Running
 
@@ -74,9 +74,9 @@ mypy src tests           # type check (strict)
 There is no venv in the repo, and bare `pytest`/`mypy` fail here. Make one
 outside the tree: `python3 -m venv <scratchpad>/venv && <scratchpad>/venv/bin/pip
 install -e '.[dev]'`, then call its `pytest`/`ruff`/`mypy`. pytest is quiet by
-config, so run it without `-q` to see the total. Lint is **not** clean on master
-(2026-10-08: 13 ruff, 6 mypy): record the counts at baseline and judge by delta,
-re-running mypy before handing off from /build.
+config, so run it without `-q` to see the total. `ruff check` and mypy are clean
+(since the 2026-11-09 lint commit): keep both at zero, re-running mypy before
+handing off from /build. `ruff format` is not applied to the repo; don't run it.
 
 Deferred on purpose after the Oct 2026 PR triage (start here if asked): `_line_col`
 rescans from the body start per link and `_mask_code_blocks` runs twice per note

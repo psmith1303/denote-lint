@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 
 from denote_lint.checks.links import check_e004, check_i005, check_w006
-from denote_lint.models import FileLink, Link
+from denote_lint.models import FileLink, Issue, Link
 from tests.conftest import make_context, make_note
 
 
-def _codes(issues: list) -> list[str]:
+def _codes(issues: list[Issue]) -> list[str]:
     return [i.code for i in issues]
 
 

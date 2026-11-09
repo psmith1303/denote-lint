@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
 from datetime import datetime
 from pathlib import Path
 
@@ -27,7 +28,7 @@ def test_parsed_filename_is_frozen() -> None:
         extension="org",
         raw="20240115T093000--my-note__tag1.org",
     )
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         pf.identifier = "other"  # type: ignore[misc]
 
 
@@ -40,8 +41,8 @@ def test_issue_is_frozen_and_hashable() -> None:
         code="E001",
         message="msg",
     )
-    {i}  # hashable
-    with pytest.raises(Exception):
+    hash(i)
+    with pytest.raises(FrozenInstanceError):
         i.code = "E002"  # type: ignore[misc]
 
 
@@ -55,7 +56,7 @@ def test_frontmatter_defaults() -> None:
 
 def test_link_is_frozen() -> None:
     link = Link(target_id="20240115T093000", description=None, line=3, col=1)
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         link.line = 99  # type: ignore[misc]
 
 

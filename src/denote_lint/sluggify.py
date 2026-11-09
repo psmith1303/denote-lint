@@ -25,9 +25,9 @@ import re
 
 # Mirrored verbatim from denote.el's `denote-sluggify-title`,
 # `denote-sluggify-signature`, and `denote-sluggify-keyword`.
-TITLE_BLOCKLIST = frozenset("[]{}!@#$%^&*()+'\"?,.|;:~`‘’“”/=")
-SIGNATURE_BLOCKLIST = frozenset("[]{}!@#$%^&*()+'\"?,.|;:~`‘’“”/-")
-KEYWORD_BLOCKLIST = frozenset("[]{}!@#$%^&*()+'\"?,.|;:~`‘’“”/_ =-")
+TITLE_BLOCKLIST = frozenset("[]{}!@#$%^&*()+'\"?,.|;:~`‘’“”/=")  # noqa: RUF001
+SIGNATURE_BLOCKLIST = frozenset("[]{}!@#$%^&*()+'\"?,.|;:~`‘’“”/-")  # noqa: RUF001
+KEYWORD_BLOCKLIST = frozenset("[]{}!@#$%^&*()+'\"?,.|;:~`‘’“”/_ =-")  # noqa: RUF001
 
 _WS_OR_UNDERSCORE_RE = re.compile(r"[_\s]+")
 _HYPHEN_RUN_RE = re.compile(r"-{2,}")

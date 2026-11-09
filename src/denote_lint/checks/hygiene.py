@@ -140,8 +140,7 @@ def _edit_distance(a: str, b: str) -> int:
     if la > lb:
         a, b, la, lb = b, a, lb, la
     if la == lb:
-        diff = sum(1 for x, y in zip(a, b) if x != y)
-        return diff
+        return sum(1 for x, y in zip(a, b, strict=True) if x != y)
     for i in range(lb):
         if b[:i] + b[i + 1 :] == a:
             return 1

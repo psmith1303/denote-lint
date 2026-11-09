@@ -61,7 +61,9 @@ class TestArgParser:
 
 
 class TestRun:
-    def test_clean_corpus_exits_zero(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    def test_clean_corpus_exits_zero(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         _write(
             tmp_path / "20240115T093000--note__t.org",
             "#+title: Note\n#+identifier: 20240115T093000\n#+filetags: :t:\n\nbody\n",

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -49,10 +50,11 @@ def _config(**kwargs: object) -> Config:
     return Config(**base)  # type: ignore[arg-type]
 
 
-def _run_and_parse(cfg: Config, capsys: pytest.CaptureFixture[str]) -> dict:
+def _run_and_parse(cfg: Config, capsys: pytest.CaptureFixture[str]) -> dict[str, Any]:
     run(cfg)
     out = capsys.readouterr().out
-    return json.loads(out)
+    data: dict[str, Any] = json.loads(out)
+    return data
 
 
 def test_default_severity_exact_set(capsys: pytest.CaptureFixture[str]) -> None:
