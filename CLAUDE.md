@@ -100,3 +100,11 @@ End-to-end regression test in `tests/test_e2e_corpus.py` runs denote-lint agains
 - **Runtime**: PyYAML only (for YAML front matter)
 - **Dev**: pytest, ruff, mypy
 - **Python**: 3.11+ (uses `tomllib`, `Self`, structural pattern matching)
+
+## Releasing and pushing
+
+- `origin` pushes to GitHub first, then p3800, whose pre-receive hook runs the tests.
+  Push `p3800` first, then `origin` once `git ls-remote p3800` shows it took.
+- A release bumps the version in both `pyproject.toml` and `src/denote_lint/__init__.py`,
+  then gets an annotated tag (`git tag -a vX.Y.Z`) made at /ship after the gate, and a
+  GitHub release (`gh release create`, with notes calling out any behaviour change).
